@@ -5,6 +5,7 @@ import httpx
 from fastapi import FastAPI
 import face_recognition
 from starlette.middleware.cors import CORSMiddleware
+from pydantic import BaseModel
 
 app = FastAPI()
 origins = ["*"]
@@ -18,11 +19,16 @@ app.add_middleware(
 )
 
 
-@app.get("/model/image-comparison")
-async def root(compare: str, unknown: str):
+class Body(BaseModel):
+    compare: str
+    unknown: str
+
+
+@app.post("/model/image-comparison")
+async def root(data: Body):
     async with httpx.AsyncClient() as client:
-        object = await client.get(compare)
-    file_like = BytesIO(base64.b64decode(unknown.replace("data:image/octet-stream;base64,", "")))
+        object = await client.get(data.compare)
+    file_like = BytesIO(base64.b64decode(data.unknown.replace("data:image/octet-stream;base64,", "")))
     compare_face = face_recognition.load_image_file(BytesIO(object.content))
     unknown_face = face_recognition.load_image_file(file_like)
     try:
