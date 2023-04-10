@@ -34,12 +34,17 @@ async def comparison(data: BodyMultiple):
     file_like = BytesIO(base64.b64decode(
         data.unknown.replace("data:image/octet-stream;base64,", "").replace("data:image/jpeg;base64,", "")))
     unknown_face = face_recognition.load_image_file(file_like)
+
     try:
         # map to face encodings ,then take only images that have faces, take first face
-        compare_encoding = list(map(lambda x: x[0],
-                                    filter(lambda x: len(x) > 0,
+        compare_encoding = list(map(lambda x: {"avatar": x["avatar"][0], "id": x["id"]},
+                                    filter(lambda x: len(x["avatar"]) > 0,
                                            list(
-                                        map(lambda x: face_recognition.face_encodings(face_recognition.load_image_file(x)),
+                                        map(lambda x:
+                                            {"avatar": face_recognition.face_encodings(
+                                                face_recognition.load_image_file(x['avatar'])),
+                                             "id": x["id"]
+                                             },
                                             data.compare)
                                     )
         )
@@ -49,8 +54,8 @@ async def comparison(data: BodyMultiple):
     except Exception:
         return {"detected": False, "status": "Error"}
     for items in compare_encoding:
-        if face_recognition.compare_faces([items], unknown_encoding[0])[0]:
-            return {"detected" : 1}
+        if face_recognition.compare_faces([items["avatar"]], unknown_encoding[0])[0]:
+            return {"detected": items["id"]}
     return {"detected": 0}
 
 
