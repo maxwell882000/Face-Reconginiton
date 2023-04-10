@@ -47,7 +47,7 @@ async def comparison(data: BodyMultiple):
         )
         )
         unknown_encoding = face_recognition.face_encodings(unknown_face)
-    except IndexError:
+    except Exception:
         return {"detected": False, "status": "Error"}
     for items in compare_encoding:
         if face_recognition.compare_faces([items], unknown_encoding[0])[0]:
