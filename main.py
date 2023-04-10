@@ -32,11 +32,10 @@ class BodyMultiple(BaseModel):
 @app.post("/model/image-comparison/multiple")
 async def comparison(data: BodyMultiple):
     file_like = BytesIO(base64.b64decode(
-        data.unknown.replace("data:image/octet-stream;base64,", "")))
+        data.unknown.replace("data:image/octet-stream;base64,", "").replace("data:image/jpeg;base64,", "")))
     unknown_face = face_recognition.load_image_file(file_like)
     try:
         # map to face encodings ,then take only images that have faces, take first face
-        print(data.compare)
         compare_encoding = list(map(lambda x: x[0],
                                     filter(lambda x: len(x) > 0,
                                            list(
