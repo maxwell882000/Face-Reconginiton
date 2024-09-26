@@ -1,1 +1,1 @@
-Face Recognition using Fast Api and face-recognition
+Face Recognition using FastApi and face-recognition library
